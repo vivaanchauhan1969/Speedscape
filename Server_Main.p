@@ -113,3 +113,21 @@ function initialiseNewRun(player, delayTime, charExpected, showLastResults)
 			player:LoadCharacter()
 
 			initialiseRunStats(player)
+
+			local playersPath = path()
+			lastActivePath[player.Name] = playersPath
+			playersPath:init(player.Name)
+		end
+	end
+end
+
+function setUpPostRunStats(player)
+	local folder = Instance.new("Folder")
+	folder.Name = "RunStats"
+	folder.Parent = player
+	local currentDistance = Instance.new("IntValue")
+local coinsCollected = Instance.new("IntValue")
+	coinsCollected.Name = "CoinsCollected"
+	coinsCollected.Value = 0
+	coinsCollected.Parent = folder
+end
