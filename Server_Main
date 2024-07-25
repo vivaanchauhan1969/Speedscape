@@ -22,4 +22,20 @@ coroutine.wrap(function()
 		end
 	end
 end)()
-game.ReplicatedStorage.RemoteEvents.RunStarting.OnServerEvent:connect(runStarting)
+
+function executeBehaviour(player, character, brickTouched, behaviourName)
+	if behaviourModules[behaviourName] ~= nil then
+		behaviourModules[behaviourName]:ExecuteBehaviour(brickTouched, character)
+	end
+end
+game.ReplicatedStorage.RemoteEvents.ExecuteBehaviour.OnServerEvent:connect(executeBehaviour)
+
+local lastActivePath = {}
+
+if game.Workspace:FindFirstChild("BasePlate") then
+	game.Workspace.BasePlate:Destroy()
+end
+
+local tracksModel = Instance.new("Model")
+tracksModel.Name = "Tracks"
+tracksModel.Parent = game.Workspace
