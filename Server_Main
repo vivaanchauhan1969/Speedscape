@@ -36,6 +36,31 @@ if game.Workspace:FindFirstChild("BasePlate") then
 	game.Workspace.BasePlate:Destroy()
 end
 
+
 local tracksModel = Instance.new("Model")
 tracksModel.Name = "Tracks"
 tracksModel.Parent = game.Workspace
+
+
+function packagePathModels()
+	local pathPackager = require(script.PathPackager)
+	while true do
+		local pathBase = game.Workspace:FindFirstChild("PathBase", true)
+		if pathBase then
+			pathPackager:PackageRoom(pathBase)
+		else
+			break
+		end
+	end
+end
+
+coroutine.wrap(function() packagePathModels() end)()
+
+function loadLeaderstats(player)
+	local stats = Instance.new("IntValue")
+	stats.Name = "leaderstats"
+
+	local highScore = Instance.new("IntValue")
+	highScore.Name = "High Score"
+	highScore.Parent = stats
+	highScore.Value = 0
