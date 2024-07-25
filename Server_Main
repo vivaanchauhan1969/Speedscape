@@ -64,3 +64,28 @@ function loadLeaderstats(player)
 	highScore.Name = "High Score"
 	highScore.Parent = stats
 	highScore.Value = 0
+
+	local currentScore = Instance.new("IntValue")
+	currentScore.Name = "Score"
+	currentScore.Parent = stats
+
+	stats.Parent = player
+end
+
+function initialiseRunStats(player)
+	if player:FindFirstChild("RunStats") then
+		player.RunStats.Distance.Value = 0
+		player.RunStats.CoinsCollected.Value = 0
+	end
+end
+
+function showResults(player)
+	local resultsGUI = game.ServerStorage.GUIs.PostRunGUI:Clone()
+	resultsGUI.Frame.DistanceValue.Text = player.RunStats.Distance.Value
+	resultsGUI.Frame.CoinsValue.Text = player.RunStats.CoinsCollected.Value
+	resultsGUI.Frame.ScoreValue.Text = player.leaderstats.Score.Value
+
+	resultsGUI.Parent = player.PlayerGui
+	return resultsGUI
+end
+	local currentScore = Instance.new("IntValue")
