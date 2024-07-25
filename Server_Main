@@ -14,5 +14,12 @@ local behaviourModules = {}
 
 coroutine.wrap(function()
 	for _, behaviourScript in ipairs(script.Behaviours:GetChildren()) do
-    local success, errMessage = pcall(function()
+    		local success, errMessage = pcall(function()
 			behaviourModules[behaviourScript.Name] = require(behaviourScript)
+		end)
+		if not success then
+			warn("Failed to load module" ..behaviourScript.Name.. ".\n" ..errMessage)
+		end
+	end
+end)()
+game.ReplicatedStorage.RemoteEvents.RunStarting.OnServerEvent:connect(runStarting)
