@@ -1,0 +1,18 @@
+local path = nil
+coroutine.wrap(function() path = require(script.PathCreator) end)()
+
+function runStarting(player)
+	if player.Character then
+		if player.Character:FindFirstChild("FastStartScript") then
+			player.Character.FastStartScript.Disabled = false
+		end
+	end
+end
+game.ReplicatedStorage.RemoteEvents.RunStarting.OnServerEvent:connect(runStarting)
+
+local behaviourModules = {}
+
+coroutine.wrap(function()
+	for _, behaviourScript in ipairs(script.Behaviours:GetChildren()) do
+    local success, errMessage = pcall(function()
+			behaviourModules[behaviourScript.Name] = require(behaviourScript)
