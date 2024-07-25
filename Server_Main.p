@@ -126,8 +126,42 @@ function setUpPostRunStats(player)
 	folder.Name = "RunStats"
 	folder.Parent = player
 	local currentDistance = Instance.new("IntValue")
-local coinsCollected = Instance.new("IntValue")
+	currentDistance.Name = "Distance"
+	currentDistance.Value = 0
+	currentDistance.Parent = folder
+	local coinsCollected = Instance.new("IntValue")
 	coinsCollected.Name = "CoinsCollected"
 	coinsCollected.Value = 0
 	coinsCollected.Parent = folder
 end
+
+function onPlayerEntered(player)
+	player.CharacterAdded:connect(function(character)
+		local humanoid = character:WaitForChild("Humanoid")
+		if humanoid then
+			humanoid.Died:connect(function()
+				initialiseNewRun(player, 4, true, true)
+			end)
+		end
+	end)
+
+	loadLeaderstats(player)
+	setUpPostRunStats(player)
+
+	initialiseNewRun(player, 0, false, false)
+end
+game.Players.PlayerAdded:connect(onPlayerEntered)
+
+function onPlayerRemoving(player)
+	local track = game.Workspace.Tracks:FindFirstChild(player.Name)
+	if track ~= nil then
+		track:Destroy()
+	end
+end
+game.Players.PlayerRemoving:connect(onPlayerRemoving)
+
+for _, player in pairs(game.Players:GetChildren()) do
+	onPlayerEntered(player)
+end
+
+
