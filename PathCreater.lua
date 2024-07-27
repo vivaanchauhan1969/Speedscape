@@ -90,4 +90,43 @@ local function makePathObject()
 				if Path.multipleBranches == false then
 					pathModelToAdd = Path.AvailableModules[math.random(1, #Path.AvailableModules)]:Clone()
 				else
-					local pathModelsSameHeight = game
+					local pathModelsSameHeight = game.ReplicatedStorage.PathModules.SameHeight:GetChildren()
+					pathModelToAdd = pathModelsSameHeight[math.random(1, #pathModelsSameHeight)]:Clone()
+				end
+			else
+				local availModules = game.ReplicatedStorage.PathModules[pathType]:GetChildren()
+				pathModelToAdd = availModules[math.random(1, #availModules)]:Clone()
+			end
+			local positionDifference = pathModelToAdd.Start.Position - lastPathModel.End.Position + Vector3.new(0, 0, (pathModelToAdd.Start.Size.Z + lastPathModel.End.Size.Z)/2)
+			local addedPath = pathModelToAdd:Clone()
+			moveOffset(addedPath, positionDifference)
+			lastPathModel.CurrentBranchValue:Clone().Parent = addedPath
+			addedPath.Parent = game.Workspace.Tracks[playerName]
+			table.insert(Path.pathModels, addedPath)
+			table.insert(Path.LastAdded, addedPath)
+			if addedPath:FindFirstChild("EndParts") then
+				Path.multipleBranches = true
+				Path.BranchAt = addedPath.EndParts:FindFirstChild("End").Position.Z
+			end
+			return addedPath
+		else
+			self:AddNewBranch(lastPathModel, playerName, pathType)
+		end
+	end
+
+	local function removeFromTable(item, theTable)
+		for i = 1, #theTable do
+			if theTable[i] == item then
+				table.remove(theTable, i)
+				break
+			end
+		end
+	end
+
+	function Path:tryCloseBranches(playerName)
+		local player = game.Players:FindFirstChild(playerName)
+		if player.Character.HumanoidRootPart.Position.Z < Path.BranchAt then
+			Path.multipleBranches = false
+			Path.LastBranch = Path.BranchAt
+			local closest = nil
+			local closestValue = nil
