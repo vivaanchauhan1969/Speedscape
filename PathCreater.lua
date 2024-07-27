@@ -41,3 +41,21 @@ local function makePathObject()
 		local endParts = lastPathModel:FindFirstChild("EndParts")
 		endParts = endParts:GetChildren()
 		if #endParts == 2 
+			local top = nil
+			local bottom = nil
+			if endParts[1].Position.Y > endParts[2].Position.Y then
+				top = endParts[1]
+				bottom = endParts[2]
+			else
+				top = endParts[2]
+				bottom = endParts[1]
+			end
+			top.Parent = lastPathModel
+			local newBranch = self:addNewPathModel(lastPathModel, playerName, "GoingUp")
+			newBranch.CurrentBranchValue.Value = newBranch.CurrentBranchValue.Value + 1
+			Path.Branches[newBranch.CurrentBranchValue.Value] = top.Position
+			top.Parent = lastPathModel.EndParts
+			bottom.Parent = lastPathModel
+			local newBranch = self:addNewPathModel(lastPathModel, playerName, "GoingDown")
+			newBranch.CurrentBranchValue.Value = newBranch.CurrentBranchValue.Value + 2
+			Path.Branches[newBranch.CurrentBranchValue.Value] = bottom.Position
