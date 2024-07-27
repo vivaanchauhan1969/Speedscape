@@ -207,3 +207,53 @@ local function makePathObject()
 		local pathToAdd = nil
 		if game.ReplicatedStorage.PathModules:FindFirstChild("StartModule") ~= nil then
 			pathToAdd = game.ReplicatedStorage.PathModules.StartModule:FindFirstChild("Start")
+		else
+			pathToAdd = Path.AvailableModules[math.random(1, #Path.AvailableModules)]
+		end
+		pathToAdd = pathToAdd:Clone()
+		pathToAdd.Parent = trackModel
+		pathToAdd:MoveTo(trackModel.Location.Value)
+
+		local branchModifier = Instance.new("IntValue")
+		branchModifier.Name = "CurrentBranchValue"
+		branchModifier.Value = 0
+		branchModifier.Parent = pathToAdd
+
+		table.insert(Path.pathModels, pathToAdd)
+		table.insert(Path.LastAdded, pathToAdd)
+		return pathToAdd
+	end
+
+
+	local function findOpenSlot()
+		local takenLocations = {}
+		local defaultLocation = Vector3.new(0, 100, 0)
+		for _, track in pairs(game.Workspace.Tracks:GetChildren()) do
+			table.insert(takenLocations, track.Location.Value)
+		end
+		table.sort(takenLocations, function(a, b) return (a.X < b.X) end)
+		for i = 1, #takenLocations do
+			if (takenLocations[i].X > defaultLocation.X) then
+				break
+			else
+				defaultLocation = Vector3.new(defaultLocation.X + 50, 100, 0)
+			end
+		end
+		return defaultLocation
+	end
+
+	function Path:init(playerName)
+		local previousTrack = game.Workspace.Tracks:FindFirstChild(playerName)
+		if (previousTrack) thenw
+			previousTrack:Destroy()
+		end
+
+		local trackModel = Instance.new("Model")
+		trackModel.Name = playerName
+		local location = Instance.new("Vector3Value")
+		location.Name = "Location"
+		location.Value = findOpenSlot()
+		location.Parent = trackModel
+		trackModel.Parent = game.Workspace.Tracks
+
+		local firstAddedPath = self:
