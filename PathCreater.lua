@@ -173,3 +173,37 @@ local function makePathObject()
 
 	function Path:CheckRemovePart(playerName)
 		local player = game.Players:FindFirstChild(playerName)
+		if player.Character.HumanoidRootPart.Position.Z < Path.pathModels[1].End.Position.Z - Path.pathModels[1].PathBase.Size.Z*3 then
+			Path.pathModels[1]:Destroy()
+			table.remove(Path.pathModels, 1)
+		end
+	end
+
+
+	function Path:AddPathAsPlayerMoves(playerName)
+		local player = game.Players:FindFirstChild(playerName)
+		if player then
+			if not player.Character then
+				player.CharacterAdded:wait()
+			end
+
+			local extendPathConnection = game:GetService("RunService").Heartbeat:connect(function()
+				if player.Character:FindFirstChild("HumanoidRootPart") then
+					if Path.multipleBranches == true then
+						self:tryCloseBranches(playerName)
+					end
+					self:CheckExtendPath(playerName)
+					self:CheckRemovePart(playerName)
+				end
+			end)
+
+			player.CharacterRemoving:connect(function() extendPathConnection:disconnect() end)
+			player.Character.Humanoid.Died:connect(function() extendPathConnection:disconnect() end)
+		end
+	end
+
+
+	function Path:AddFirstPathModel(trackModel)
+		local pathToAdd = nil
+		if game.ReplicatedStorage.PathModules:FindFirstChild("StartModule") ~= nil then
+			pathToAdd = game.ReplicatedStorage.PathModules.StartModule:FindFirstChild("Start")
