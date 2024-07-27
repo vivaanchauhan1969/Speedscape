@@ -59,3 +59,35 @@ local function makePathObject()
 			local newBranch = self:addNewPathModel(lastPathModel, playerName, "GoingDown")
 			newBranch.CurrentBranchValue.Value = newBranch.CurrentBranchValue.Value + 2
 			Path.Branches[newBranch.CurrentBranchValue.Value] = bottom.Position
+		else
+			table.sort(endParts,function(a, b) return a.Position.Y < b.Position.Y end)
+			for i = 1, #endParts do
+				endParts[i].Parent = lastPathModel
+				if endParts[i].Position.Y > endParts[math.floor((#endParts + 1)/2)].Position.Y then
+					local newBranch = self:addNewPathModel(lastPathModel, playerName, "GoingUp")
+					newBranch.CurrentBranchValue.Value = newBranch.CurrentBranchValue.Value + i
+					Path.Branches[newBranch.CurrentBranchValue.Value] = endParts[i].Position
+				elseif endParts[i].Position.Y < endParts[math.floor((#endParts + 1)/2)].Position.Y then
+					local newBranch = self:addNewPathModel(lastPathModel, playerName, "GoingDown")
+					newBranch.CurrentBranchValue.Value = newBranch.CurrentBranchValue.Value + i
+					Path.Branches[newBranch.CurrentBranchValue.Value] = endParts[i].Position
+				else
+					local newBranch = self:addNewPathModel(lastPathModel, playerName, "SameHeight")
+					newBranch.CurrentBranchValue.Value = newBranch.CurrentBranchValue.Value + i
+					Path.Branches[newBranch.CurrentBranchValue.Value] = endParts[i].Position
+				end
+				if i ~= #endParts then
+					endParts[i].Parent = lastPathModel.EndParts
+				end
+			end
+		end
+	end
+
+	function Path:addNewPathModel(lastPathModel, playerName, pathType)
+		if lastPathModel:FindFirstChild("End") then
+			local pathModelToAdd = nil
+			if pathType == "random" then
+				if Path.multipleBranches == false then
+					pathModelToAdd = Path.AvailableModules[math.random(1, #Path.AvailableModules)]:Clone()
+				else
+					local pathModelsSameHeight = game
