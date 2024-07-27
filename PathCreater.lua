@@ -130,3 +130,46 @@ local function makePathObject()
 			Path.LastBranch = Path.BranchAt
 			local closest = nil
 			local closestValue = nil
+			
+			for i, v in pairs(Path.Branches) do
+				if closest == nil then
+					closest = i
+					closestValue = (player.Character.HumanoidRootPart.Position - v).magnitude
+				else
+					if (player.Character.HumanoidRootPart.Position - v).magnitude < closestValue then
+						closest = i
+						closestValue = (player.Character.HumanoidRootPart.Position - v).magnitude
+					end
+				end
+			end
+
+			for _, pathModel in pairs(game.Workspace.Tracks[player.Name]:GetChildren()) do
+				if pathModel:isA("Model") then
+					if pathModel:FindFirstChild("CurrentBranchValue") then
+						if pathModel.CurrentBranchValue.Value ~= closest then
+							game:GetService("Debris"):AddItem(pathModel, 3)
+							removeFromTable(pathModel, Path.pathModels)
+							removeFromTable(pathModel, Path.LastAdded)
+						end
+					end
+				end
+			end
+		end
+	end
+
+
+	function Path:CheckExtendPath(playerName)
+		local player = game.Players:FindFirstChild(playerName)
+		if Path.LastAdded[1] then
+			if player.Character.HumanoidRootPart.Position.Z < Path.LastAdded[1].Start.Position.Z + Path.LastAdded[1].PathBase.Size.Z*2 then
+				self:addNewPathModel(Path.LastAdded[1], playerName, "random")
+				table.remove(Path.LastAdded, 1)
+			end
+		else
+			table.remove(Path.LastAdded, 1)
+		end
+	end
+
+
+	function Path:CheckRemovePart(playerName)
+		local player = game.Players:FindFirstChild(playerName)
