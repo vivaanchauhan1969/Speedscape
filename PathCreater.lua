@@ -256,4 +256,20 @@ local function makePathObject()
 		location.Parent = trackModel
 		trackModel.Parent = game.Workspace.Tracks
 
-		local firstAddedPath = self:
+		local firstAddedPath = self:AddFirstPathModel(trackModel)
+
+		for i = 1, MODELS_AHEAD do
+			self:addNewPathModel(Path.LastAdded[1], playerName, "random")
+			table.remove(Path.LastAdded, 1)
+		end
+
+		wait()
+		Path.CharacterHandler:init(firstAddedPath, playerName)
+		self:AddPathAsPlayerMoves(playerName)
+	end
+
+	return Path
+end
+
+return makePathObject
+	
