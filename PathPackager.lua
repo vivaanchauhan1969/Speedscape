@@ -33,6 +33,7 @@ function RoomPackager:TopCornersOfBasePlate(basePlate)
 	return topCorners
 end
 
+
 function RoomPackager:RegionsFromBasePlate(basePlate)
 	local topCorners = self:TopCornersOfBasePlate(basePlate)
 	local arbitraryCorner = topCorners[1]
@@ -66,6 +67,7 @@ function RoomPackager:RegionsFromBasePlate(basePlate)
 	return regions
 end
 
+
 local function closestParentToWorkspace(object, roomModel)
 	if object.Parent == roomModel then
 		return nil
@@ -76,3 +78,36 @@ local function closestParentToWorkspace(object, roomModel)
 		return closestParentToWorkspace(object.Parent, roomModel)
 	end
 end
+
+
+function RoomPackager:CategoriseModel(pathModel)
+	if pathModel:FindFirstChild("EndParts") then
+		return game.ReplicatedStorage.PathModules.Branch
+	elseif pathModel.Start.Position.Y < pathModel.End.Position.Y - 5 then
+		return game.ReplicatedStorage.PathModules.GoingUp
+	elseif pathModel.Start.Position.Y > pathModel.End.Position.Y + 5 then
+		return game.ReplicatedStorage.PathModules.GoingDown
+	else
+		return game.ReplicatedStorage.PathModules.SameHeight
+	end
+end
+
+local function addBehavioursRecur(model, behaviourFolder)
+	local children = model:GetChildren()
+	for i = 1, #children do
+		if children[i]:isA("BasePart") then
+			behaviourFolder:Clone().Parent = children[i]
+		else
+			addBehavioursRecur(children[i], behaviourFolder)
+		end
+	end
+end
+
+RoomPackager.setUpBehaviours = function(roomModel)
+	if roomModel:FindFirstChild("Behaviours") then
+		addBehavioursRecur(roomModel, roomModel.Behaviours)
+		return
+	end
+	local children = roomModel:GetChildren()
+	for i = 1, #children do
+		RoomPackager.setUpBehaviours(children[i])
