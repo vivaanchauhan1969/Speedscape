@@ -146,3 +146,42 @@ local function processPart(roomModel, part, parts)
 		end
 	end
 end
+
+function RoomPackager:PackageRoom(roomBasePlate)
+	local roomModel = Instance.new("Model")
+	roomModel.Name = "Path"
+	roomModel.Parent = game.ReplicatedStorage.PathModules
+
+	local regions = self:RegionsFromBasePlate(roomBasePlate)
+	
+	for i = 1, #regions do
+		--Repeatedly finds 200 parts in the region until none are left
+		while true do
+			local parts = game.Workspace:FindPartsInRegion3(regions[i], nil, 200)
+			if #parts == 0 then
+				break
+			end
+			for _, part in pairs(parts) do
+				processPart(roomModel, part, parts)
+			end
+		end
+	end
+
+	roomBasePlate.Transparency = 1
+	roomBasePlate.Parent = roomModel
+	roomModel:FindFirstChild("Start", true).Parent = roomModel
+	roomModel:FindFirstChild("Start", true).Transparency = 1
+	if roomModel:FindFirstChild("EndParts") then
+		local ends = roomModel:FindFirstChild("EndParts"):GetChildren()
+		for i = 1, #ends do
+			ends[i].Transparency = 1
+		end
+	else
+		roomModel.End.Transparency = 1
+	end
+	roomModel.PrimaryPart = roomBasePlate
+	roomModel.Parent = self:CategoriseModel(roomModel)
+	RoomPackager.setUpBehaviours(roomModel)
+	return roomModel
+end
+return RoomPackager
