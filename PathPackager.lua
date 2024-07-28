@@ -111,3 +111,38 @@ RoomPackager.setUpBehaviours = function(roomModel)
 	local children = roomModel:GetChildren()
 	for i = 1, #children do
 		RoomPackager.setUpBehaviours(children[i])
+	end
+end
+
+local function processPart(roomModel, part, parts)
+	if part.Parent == roomModel then return end
+	if part.Name == "End" and roomModel:FindFirstChild("End") then
+		local endsModel = Instance.new("Model") --Used for branching the path
+		endsModel.Name = "EndParts"
+		endsModel.Parent = roomModel
+		part.Parent = endsModel
+		roomModel:FindFirstChild("End").Parent = endsModel
+	elseif part.Name == "End" and roomModel:FindFirstChild("EndParts") then
+		part.Parent = roomModel:FindFirstChild("EndParts")
+	elseif part.Name == "End" then
+		part.Parent = roomModel
+	else
+		local topLevelParent = closestParentToWorkspace(part, roomModel)
+		if topLevelParent ~= nil then
+			if topLevelParent:isA("BasePart") then
+				local connectedParts = topLevelParent:GetConnectedParts(true)
+				for _, connectedPart in pairs(connectedParts) do
+					if connectedPart.Name == "End" then
+						table.insert(parts, connectedPart)
+					else
+						local conTopLevelParent = closestParentToWorkspace(connectedPart, roomModel)
+						if conTopLevelParent and conTopLevelParent ~= topLevelParent then
+							conTopLevelParent.Parent = roomModel
+						end
+					end
+				end
+			end
+			topLevelParent.Parent = roomModel
+		end
+	end
+end
