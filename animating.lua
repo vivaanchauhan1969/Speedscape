@@ -225,3 +225,41 @@ function playAnimation(animName, transitionTime, humanoid)
 			roll = roll - animTable[animName][idx].weight
 			idx = idx + 1
 		end
+		local anim = animTable[animName][idx].anim
+
+
+		currentAnimTrack = humanoid:LoadAnimation(anim)
+
+
+		currentAnimTrack:Play(transitionTime)
+		currentAnim = animName
+
+		if (currentAnimKeyframeHandler ~= nil) then
+			currentAnimKeyframeHandler:disconnect()
+		end
+		currentAnimKeyframeHandler = currentAnimTrack.KeyframeReached:connect(keyFrameReachedFunc)
+	end
+end
+
+
+
+local toolAnimName = ""
+local toolAnimTrack = nil
+local currentToolAnimKeyframeHandler = nil
+
+function toolKeyFrameReachedFunc(frameName)
+	if (frameName == "End") then
+		local repeatAnim = stopToolAnimations()
+		playToolAnimation(repeatAnim, 0.0, Humanoid)
+	end
+end
+
+
+function playToolAnimation(animName, transitionTime, humanoid)
+	if (animName ~= toolAnimName) then
+
+		if (toolAnimTrack ~= nil) then
+			toolAnimTrack:Stop()
+			toolAnimTrack:Destroy()
+			transitionTime = 0
+		end
