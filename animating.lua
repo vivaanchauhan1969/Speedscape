@@ -263,3 +263,63 @@ function playToolAnimation(animName, transitionTime, humanoid)
 			toolAnimTrack:Destroy()
 			transitionTime = 0
 		end
+function stopToolAnimations()
+	local oldAnim = toolAnimName
+
+	if (currentToolAnimKeyframeHandler ~= nil) then
+		currentToolAnimKeyframeHandler:disconnect()
+	end
+
+	toolAnimName = ""
+	if (toolAnimTrack ~= nil) then
+		toolAnimTrack:Stop()
+		toolAnimTrack:Destroy()
+		toolAnimTrack = nil
+	end
+
+
+	return oldAnim
+end
+
+
+
+function onRunning(speed)
+	if speed>0.01 then
+		playAnimation("walk", 0.1, Humanoid)
+		pose = "Running"
+	else
+		playAnimation("idle", 0.1, Humanoid)
+		pose = "Standing"
+	end
+end
+
+function onDied()
+	pose = "Dead"
+end
+
+function onJumping()
+	playAnimation("jump", 0.1, Humanoid)
+	jumpAnimTime = jumpAnimDuration
+	pose = "Jumping"
+end
+
+function onClimbing(speed)
+	playAnimation("climb", 0.1, Humanoid)
+	setAnimationSpeed(speed / 12.0)
+	pose = "Climbing"
+end
+
+function onGettingUp()
+	pose = "GettingUp"
+end
+
+function onFreeFall()
+	if (jumpAnimTime <= 0) then
+		playAnimation("fall", fallTransitionTime, Humanoid)
+	end
+	pose = "FreeFall"
+end
+
+function onFallingDown()
+	pose = "FallingDown"
+end
