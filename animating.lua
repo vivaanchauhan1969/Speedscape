@@ -373,3 +373,58 @@ function animateTool()
 		return
 	end
 end
+
+function moveSit()
+	RightShoulder.MaxVelocity = 0.15
+	LeftShoulder.MaxVelocity = 0.15
+	RightShoulder:SetDesiredAngle(3.14 /2)
+	LeftShoulder:SetDesiredAngle(-3.14 /2)
+	RightHip:SetDesiredAngle(3.14 /2)
+	LeftHip:SetDesiredAngle(-3.14 /2)
+end
+
+local lastTick = 0
+
+function move(time)
+	local amplitude = 1
+	local frequency = 1
+  	local deltaTime = time - lastTick
+  	lastTick = time
+
+	local climbFudge = 0
+	local setAngles = false
+
+  	if (jumpAnimTime > 0) then
+  		jumpAnimTime = jumpAnimTime - deltaTime
+  	end
+
+	if (pose == "FreeFall" and jumpAnimTime <= 0) then
+		playAnimation("fall", fallTransitionTime, Humanoid)
+	elseif (pose == "Seated") then
+		stopAllAnimations()
+		moveSit()
+		return
+	elseif (pose == "Running") then
+		playAnimation("walk", 0.1, Humanoid)
+	elseif (pose == "Dead" or pose == "GettingUp" or pose == "FallingDown" or pose == "Seated" or pose == "PlatformStanding") then
+
+		amplitude = 0.1
+		frequency = 1
+		setAngles = true
+	end
+
+	if (setAngles) then
+		local desiredAngle = amplitude * math.sin(time * frequency)
+
+		RightShoulder:SetDesiredAngle(desiredAngle + climbFudge)
+		LeftShoulder:SetDesiredAngle(desiredAngle - climbFudge)
+		RightHip:SetDesiredAngle(-desiredAngle)
+		LeftHip:SetDesiredAngle(-desiredAngle)
+	end
+	local tool = getTool()
+	if tool then
+
+		local animStringValueObject = getToolAnim(tool)
+
+		if animStringValueObject then
+			toolAnim = animStringValueObject.Value
